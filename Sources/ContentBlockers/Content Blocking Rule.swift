@@ -8,6 +8,11 @@ public let optimisingDomainSuffix = "[:/]"
 public struct ContentBlockingRule : Equatable, Hashable {
 	var trigger: Trigger
 	var action: Action
+
+    public init(trigger: Trigger, action: Action) {
+        self.trigger = trigger
+        self.action = action
+    }
 }
 
 /// When to trigger the rule
@@ -23,6 +28,16 @@ public struct Trigger : Equatable, Hashable {
     /// An array of strings that can include one of two mutually exclusive values. If not specified, the rule matches all load types. first-party is triggered only if the resource has the same scheme, domain, and port as the main page resource. third-party is triggered if the resource is not from the same domain as the main page resource.
 	var loadType: [LoadType]?
 	var urlSelection: URLSelection?
+
+    public init(urlFilter: String, urlFilterIsCaseSensitive: Bool? = nil,
+                resourceType: [ResourceType]? = nil, loadType: [LoadType]? = nil,
+                urlSelection: URLSelection? = nil) {
+        self.urlFilter = urlFilter
+        self.urlFilterIsCaseSensitive = urlFilterIsCaseSensitive
+        self.resourceType = resourceType
+        self.loadType = loadType
+        self.urlSelection = urlSelection
+    }
 }
 
 /// The action applied to the website content
@@ -31,6 +46,11 @@ public struct Action : Equatable, Hashable {
     
     /// Specifies a comma-separated selector list. This value is required when the action type is css-display-none. If it's not, the selector field is ignored by Safari.
 	var selector: String?
+
+    public init(type: ActionType, selector: String? = nil) {
+        self.type = type
+        self.selector = selector
+    }
 }
 
 /// Action that will be applied when the corresponding trigger is activated
