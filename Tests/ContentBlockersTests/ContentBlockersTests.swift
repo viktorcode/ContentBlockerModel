@@ -2,14 +2,36 @@ import XCTest
 @testable import ContentBlockers
 
 final class ContentBlockersTests: XCTestCase {
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        XCTAssertEqual(ContentBlockers().text, "Hello, World!")
+    let escapedOptimisingDomainPrefix = "^[^:]+:\\/\\/+([^:\\/]+\\\\.)?"
+    let blockRule = ContentBlockingRule(
+        trigger: Trigger(urlFilter: optimisingDomainPrefix + "trc\\.taboola\\.com",
+            urlFilterIsCaseSensitive: true,
+            loadType: [.thirdParty]),
+        action: Action(type: .block))
+
+
+
+    func testSanity() {
+        let rule = ContentBlockingRule(
+            trigger: Trigger(urlFilter: "*."),
+            action: Action(type: .block))
+
+        let another = ContentBlockingRule(
+            trigger: Trigger(urlFilter: "*."),
+            action: Action(type: .block))
+
+        XCTAssertEqual(rule, another)
+    }
+
+    func testShouldSerialize() {
+        let json = JSONEncoder()
+        XCTAssertNoThrow(try json.encode(blockRule))
+        let string = String(data: try! json.encode(blockRule), encoding: .utf8)!
+        XCTAssertTrue(string.contains(escapedOptimisingDomainPrefix))
     }
 
     static var allTests = [
-        ("testExample", testExample),
+        ("Test Sanity", testSanity),
+        ("Should Serialise", testShouldSerialize)
     ]
 }

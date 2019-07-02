@@ -1,3 +1,3 @@
 # ContentBlockers
 
-A description of this package.
+Safari Content Blockers data model.

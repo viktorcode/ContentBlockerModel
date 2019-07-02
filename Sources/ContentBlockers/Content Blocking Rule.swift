@@ -2,14 +2,15 @@
 
 import Foundation
 
-let optimisingDomainPrefix = "^[^:]+://+([^:/]+\\.)?"
-let optimisingDomainSuffix = "[:/]"
+public let optimisingDomainPrefix = "^[^:]+://+([^:/]+\\.)?"
+public let optimisingDomainSuffix = "[:/]"
 
 public struct ContentBlockingRule : Equatable, Hashable {
 	var trigger: Trigger
 	var action: Action
 }
 
+/// When to trigger the rule
 public struct Trigger : Equatable, Hashable {
 	var urlFilter: String
 
@@ -24,7 +25,7 @@ public struct Trigger : Equatable, Hashable {
 	var urlSelection: URLSelection?
 }
 
-
+/// The action applied to the website content
 public struct Action : Equatable, Hashable {
 	var type: ActionType
     
@@ -177,28 +178,6 @@ extension ResourceType : Comparable {
 extension LoadType : Comparable {
     public static func < (lhs: LoadType, rhs: LoadType) -> Bool {
         return lhs.rawValue < rhs.rawValue
-    }
-}
-
-// MARK: - Helper initialisers
-extension Action {
-    init(actionType: ActionType, selector: String? = nil) {
-        self.type = actionType
-        self.selector = selector
-    }
-}
-
-extension Trigger {
-    init(urlMask: String,
-         urlFilterIsCaseSensitive: Bool? = nil,
-         resourceType: [ResourceType]? = nil,
-         loadType: [LoadType]? = nil,
-         urlSelection: URLSelection? = nil) {
-        self.urlFilter = urlMask
-        self.urlFilterIsCaseSensitive = urlFilterIsCaseSensitive
-        self.resourceType = resourceType
-        self.loadType = loadType
-        self.urlSelection = urlSelection
     }
 }
 
