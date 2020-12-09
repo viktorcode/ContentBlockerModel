@@ -31,6 +31,7 @@ final class ContentBlockersTests: XCTestCase {
         XCTAssertNoThrow(try json.encode(blockRule))
         let string = String(data: try! json.encode(blockRule), encoding: .utf8)!
         XCTAssertTrue(string.contains(escapedOptimisingDomainPrefix))
+        XCTAssertTrue(string.contains(#"\\.taboola\\."#))
     }
 
     func testDeserialization() {
@@ -50,7 +51,14 @@ final class ContentBlockersTests: XCTestCase {
         """#
         let json = JSONDecoder()
         let data = jsonData.data(using: .utf8)!
+        let blockRule = ContentBlockingRule(
+            trigger: Trigger(urlFilter: optimisingDomainPrefix + #"trc\.taboola\.com"#,
+                             urlFilterIsCaseSensitive: true,
+                             loadType: [.thirdParty]),
+            action: Action(type: .block))
         XCTAssertNoThrow(try json.decode(ContentBlockingRule.self, from: data))
+        let rule = try! json.decode(ContentBlockingRule.self, from: data)
+        XCTAssertEqual(rule, blockRule)
     }
 
     func testOrdering() {

@@ -55,11 +55,11 @@ public struct Action : Equatable, Hashable {
 
 /// Action that will be applied when the corresponding trigger is activated
 ///
-/// - block: Stops loading of the resource. If the resource was cached, the cache is ignored.
-/// - blockCookies: Strips cookies from the header before sending to the server. Only cookies otherwise acceptable to Safari's privacy policy can be blocked. Combining with ignore-previous-rules doesn't override the browser’s privacy settings.
-/// - cssDisplayNone: Hides elements of the page based on a CSS selector. A selector field contains the selector list. Any matching element has its display property set to none, which hides it.
-/// - ignorePreviousRules: Ignores previously triggered actions.
-/// - makeHTTPS: Changes a URL from http to https. URLs with a specified (nondefault) port and links using other protocols are unaffected.
+/// - `block`: Stops loading of the resource. If the resource was cached, the cache is ignored.
+/// - `blockCookies`: Strips cookies from the header before sending to the server. Only cookies otherwise acceptable to Safari's privacy policy can be blocked. Combining with ignore-previous-rules doesn't override the browser’s privacy settings.
+/// - `cssDisplayNone`: Hides elements of the page based on a CSS selector. A selector field contains the selector list. Any matching element has its display property set to none, which hides it.
+/// - `ignorePreviousRules`: Ignores previously triggered actions.
+/// - `makeHTTPS`: Changes a URL from http to https. URLs with a specified (nondefault) port and links using other protocols are unaffected.
 public enum ActionType : String {
 	case block
 	case blockCookies = "block-cookies"
@@ -87,10 +87,10 @@ public enum LoadType : String {
 
 /// Limits the scope of the trigger
 ///
-/// - ifDomain: An array of strings matched to a URL's domain; limits action to a list of specific domains. Values must be lowercase ASCII, or punycode for non-ASCII. Add * in front to match domain and subdomains. Can't be used with unless-domain.
-/// - unlessDomain: An array of strings matched to a URL's domain; acts on any site except domains in a provided list. Values must be lowercase ASCII, or punycode for non-ASCII. Add * in front to match domain and subdomains. Can't be used with if-domain.
-/// - ifTopURL: An array of strings matched to the entire main document URL; limits the action to a specific list of URL patterns. Values must be lowercase ASCII, or punycode for non-ASCII. Can't be used with unless-top-url.
-/// - unlessTopURL: An array of strings matched to the entire main document URL; acts on any site except URL patterns in provided list. Values must be lowercase ASCII, or punycode for non-ASCII. Can't be used with if-top-url.
+/// - `ifDomain`: An array of strings matched to a URL's domain; limits action to a list of specific domains. Values must be lowercase ASCII, or punycode for non-ASCII. Add * in front to match domain and subdomains. Can't be used with unless-domain.
+/// - `unlessDomain`: An array of strings matched to a URL's domain; acts on any site except domains in a provided list. Values must be lowercase ASCII, or punycode for non-ASCII. Add * in front to match domain and subdomains. Can't be used with if-domain.
+/// - `ifTopURL`: An array of strings matched to the entire main document URL; limits the action to a specific list of URL patterns. Values must be lowercase ASCII, or punycode for non-ASCII. Can't be used with unless-top-url.
+/// - `unlessTopURL`: An array of strings matched to the entire main document URL; acts on any site except URL patterns in provided list. Values must be lowercase ASCII, or punycode for non-ASCII. Can't be used with if-top-url.
 public enum URLSelection : Equatable, Hashable {
     case ifDomain([String])
 	case unlessDomain([String])
@@ -118,11 +118,11 @@ extension Optional : Comparable where Wrapped: Comparable {
 
 extension Array : Comparable where Element: Comparable {
     public static func < (lhs: Array<Element>, rhs: Array<Element>) -> Bool {
-        if lhs.count != rhs.count { return lhs.count < rhs.count }
-        for index in 0...lhs.count - 1 {
+        let last = Swift.min(lhs.count, rhs.count)
+        for index in 0..<last {
             if lhs[index] != rhs[index] { return lhs[index] < rhs[index] }
         }
-        return false
+        return lhs.count < rhs.count
     }
 }
 
