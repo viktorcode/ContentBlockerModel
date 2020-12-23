@@ -6,8 +6,8 @@ public let optimisingDomainPrefix = "^[^:]+://+([^:/]+\\.)?"
 public let optimisingDomainSuffix = "[:/]"
 
 public struct ContentBlockingRule : Equatable, Hashable {
-	var trigger: Trigger
-	var action: Action
+    public var trigger: Trigger
+    public var action: Action
 
     public init(trigger: Trigger, action: Action) {
         self.trigger = trigger
@@ -17,17 +17,17 @@ public struct ContentBlockingRule : Equatable, Hashable {
 
 /// When to trigger the rule
 public struct Trigger : Equatable, Hashable {
-	var urlFilter: String
+    public var urlFilter: String
 
     /// A Boolean value. The default value is false.
-	var urlFilterIsCaseSensitive: Bool?
+    public var urlFilterIsCaseSensitive: Bool?
 
     /// An array of strings representing the resource types (how the browser intends to use the resource) that the rule should match. If not specified, the rule matches all resource types. Valid values: document, image, style-sheet, script, font, raw (Any untyped load), svg-document, media, popup
-	var resourceType: [ResourceType]?
+    public var resourceType: [ResourceType]?
 
     /// An array of strings that can include one of two mutually exclusive values. If not specified, the rule matches all load types. first-party is triggered only if the resource has the same scheme, domain, and port as the main page resource. third-party is triggered if the resource is not from the same domain as the main page resource.
-	var loadType: [LoadType]?
-	var urlSelection: URLSelection?
+    public var loadType: [LoadType]?
+    public var urlSelection: URLSelection?
 
     public init(urlFilter: String, urlFilterIsCaseSensitive: Bool? = nil,
                 resourceType: [ResourceType]? = nil, loadType: [LoadType]? = nil,
@@ -42,10 +42,10 @@ public struct Trigger : Equatable, Hashable {
 
 /// The action applied to the website content
 public struct Action : Equatable, Hashable {
-	var type: ActionType
+    public var type: ActionType
     
     /// Specifies a comma-separated selector list. This value is required when the action type is css-display-none. If it's not, the selector field is ignored by Safari.
-	var selector: String?
+    public var selector: String?
 
     public init(type: ActionType, selector: String? = nil) {
         self.type = type
