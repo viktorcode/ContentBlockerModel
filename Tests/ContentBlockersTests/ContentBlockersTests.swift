@@ -85,6 +85,29 @@ final class ContentBlockersTests: XCTestCase {
         XCTAssertEqual(list[2], hidingRule, "Hiding goes lower priority")
     }
 
+    func testOverlapping() {
+        let blockRule = ContentBlockingRule(
+            trigger: Trigger(urlFilter: optimisingDomainPrefix + #"trc\.taboola\.com"#,
+                             urlFilterIsCaseSensitive: true,
+                             loadType: [.thirdParty]),
+            action: Action(type: .block))
+        let moreGenericBlockRule = ContentBlockingRule(
+            trigger: Trigger(urlFilter: optimisingDomainPrefix + #"trc\.taboola\.com"#,
+                             urlFilterIsCaseSensitive: true),
+            action: Action(type: .block))
+        let otherBlockRule = ContentBlockingRule(
+            trigger: Trigger(urlFilter: optimisingDomainPrefix + #"trc\.taboola\.com"#,
+                             urlFilterIsCaseSensitive: true,
+                             resourceType: [.popup, .script]),
+            action: Action(type: .block))
+
+        XCTAssert(moreGenericBlockRule.isSuperset(of: blockRule), "Empty loadType is more generic")
+        XCTAssert(!blockRule.isSuperset(of: moreGenericBlockRule), "Specific rule is 'smaller' than the generic one")
+        XCTAssert(moreGenericBlockRule.isSuperset(of: otherBlockRule), "Empty resourceType is more generic")
+        XCTAssert(!blockRule.isSuperset(of: otherBlockRule) && !otherBlockRule.isSuperset(of: blockRule),
+                  "Specific rules are overlapping only partially")
+    }
+
     static var allTests = [
         ("Should be equal", testEquality),
         ("Should serialise", testSerialization),

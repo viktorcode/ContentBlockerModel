@@ -17,20 +17,22 @@ public struct ContentBlockingRule : Equatable, Hashable {
 
 /// When to trigger the rule
 public struct Trigger : Equatable, Hashable {
+
+    /// Matches URL.
     public var urlFilter: String
 
     /// A Boolean value. The default value is false.
     public var urlFilterIsCaseSensitive: Bool?
 
-    /// An array of strings representing the resource types (how the browser intends to use the resource) that the rule should match. If not specified, the rule matches all resource types. Valid values: document, image, style-sheet, script, font, raw (Any untyped load), svg-document, media, popup
-    public var resourceType: [ResourceType]?
+    /// A set of strings representing the resource types (how the browser intends to use the resource) that the rule should match. If not specified, the rule matches all resource types. Valid values: document, image, style-sheet, script, font, raw (Any untyped load), svg-document, media, popup
+    public var resourceType: Set<ResourceType>?
 
-    /// An array of strings that can include one of two mutually exclusive values. If not specified, the rule matches all load types. first-party is triggered only if the resource has the same scheme, domain, and port as the main page resource. third-party is triggered if the resource is not from the same domain as the main page resource.
-    public var loadType: [LoadType]?
+    /// A set of strings that can include one of two mutually exclusive values. If not specified, the rule matches all load types. first-party is triggered only if the resource has the same scheme, domain, and port as the main page resource. third-party is triggered if the resource is not from the same domain as the main page resource.
+    public var loadType: Set<LoadType>?
     public var urlSelection: URLSelection?
 
     public init(urlFilter: String, urlFilterIsCaseSensitive: Bool? = nil,
-                resourceType: [ResourceType]? = nil, loadType: [LoadType]? = nil,
+                resourceType: Set<ResourceType>? = nil, loadType: Set<LoadType>? = nil,
                 urlSelection: URLSelection? = nil) {
         self.urlFilter = urlFilter
         self.urlFilterIsCaseSensitive = urlFilterIsCaseSensitive
@@ -126,6 +128,14 @@ extension Array : Comparable where Element: Comparable {
     }
 }
 
+extension Set : Comparable where Element: Comparable {
+    public static func < (lhs: Set<Element>, rhs: Set<Element>) -> Bool {
+        let left = Array(lhs).sorted()
+        let right = Array(rhs).sorted()
+        return  left < right
+    }
+}
+
 extension Bool : Comparable {
     public static func < (lhs: Bool, rhs: Bool) -> Bool {
         switch (lhs, rhs) {
@@ -213,8 +223,8 @@ extension Trigger : Codable {
 		let container = try decoder.container(keyedBy: CodingKeys.self)
 		urlFilter = try container.decode(String.self, forKey: .urlFilter)
 		urlFilterIsCaseSensitive = try container.decodeIfPresent(Bool.self, forKey: .urlFilterIsCaseSensitive)
-		resourceType = try container.decodeIfPresent([ResourceType].self, forKey: .resourceType)
-		loadType = try container.decodeIfPresent([LoadType].self, forKey: .loadType)
+		resourceType = try container.decodeIfPresent(Set<ResourceType>.self, forKey: .resourceType)
+		loadType = try container.decodeIfPresent(Set<LoadType>.self, forKey: .loadType)
 		let selectionContainer = try decoder.container(keyedBy: UrlSelectionKeys.self)
 		if selectionContainer.contains(.ifDomain) {
 			if let array = try selectionContainer.decode([String]?.self, forKey: .ifDomain) {
@@ -269,4 +279,38 @@ extension Trigger : Codable {
 		case ifTopURL = "if-top-url"
 		case unlessTopURL = "unless-top-url"
 	}
+}
+
+// MARK: - Merging
+extension ContentBlockingRule {
+
+    /// Checks if the rule is a more generic case of another rule
+    /// - Parameter other:  Rule to compare with
+    /// - Returns: True, if the rule is the same or a more generic case of other rule
+    public func isSuperset(of other: ContentBlockingRule) -> Bool {
+        if trigger.isSuperset(of: other.trigger) &&
+           action == other.action
+        {
+            return true
+        }
+        return false
+    }
+}
+
+extension Trigger {
+    public func isSuperset(of other: Trigger) -> Bool {
+        guard urlFilter == other.urlFilter,
+              urlFilterIsCaseSensitive == other.urlFilterIsCaseSensitive
+        else { return false }
+        guard loadType == nil ||
+                (other.loadType != nil && (loadType!.isSuperset(of: other.loadType!)))
+        else { return false }
+        guard resourceType == nil ||
+                (other.resourceType != nil && (resourceType!.isSuperset(of: other.resourceType!)))
+        else { return false }
+        guard loadType == nil ||
+                (other.loadType != nil && (loadType!.isSuperset(of: other.loadType!)))
+        else { return false }
+        return true
+    }
 }
